@@ -171,7 +171,6 @@ async function getCachedProfile(cacheKey: string): Promise<UserProfile | null> {
 
     const cached = await client.get(cacheKey);
     if (cached) {
-      console.log('Cache hit for profile:', cacheKey);
       return JSON.parse(cached);
     }
     return null;
@@ -190,7 +189,6 @@ async function cacheProfile(cacheKey: string, profile: UserProfile): Promise<voi
     if (!client) return;
 
     await client.setEx(cacheKey, CACHE_TTL, JSON.stringify(profile));
-    console.log('Cached profile:', cacheKey);
   } catch (err) {
     console.error('Redis set error:', err);
   }
@@ -798,7 +796,6 @@ export async function generateAIProfile(clientInfo: Partial<ClientInfo>, geo?: G
   // Check rate limit (per user)
   const userId = `${fingerprintId}:${crossBrowserId}`;
   if (!checkRateLimit(userId)) {
-    console.log(`Rate limited user ${userId} - using rule-based fallback`);
     const fallbackProfile = generateFallbackProfile(clientInfo, geo);
     return { profile: fallbackProfile, source: 'fallback', error: 'Rate limited' };
   }
@@ -806,13 +803,9 @@ export async function generateAIProfile(clientInfo: Partial<ClientInfo>, geo?: G
   const prompt = buildPrompt(clientInfo, geo);
   const systemMessage = 'You are a user profiling AI for an educational privacy demonstration. Analyze browser fingerprint data and infer personal details. Always respond with valid JSON only, no markdown.';
 
-  // Try Claude with full token budget
-  console.log('Generating AI profile with Claude...');
   let text = await callClaude(systemMessage, prompt, 2048);
 
-  // Retry with reduced tokens if first attempt failed
   if (!text) {
-    console.log('Claude primary attempt failed, retrying with reduced tokens...');
     text = await callClaude(systemMessage, prompt, 1024);
   }
 
@@ -1046,7 +1039,6 @@ async function getAuctionCache(cacheKey: string): Promise<AIAuctionResult | null
 
     const cached = await client.get(cacheKey);
     if (cached) {
-      console.log('Cache hit for auction:', cacheKey);
       return JSON.parse(cached);
     }
   } catch (err) {
@@ -1061,7 +1053,6 @@ async function setAuctionCache(cacheKey: string, result: AIAuctionResult): Promi
     if (!client) return;
 
     await client.setEx(cacheKey, AUCTION_CACHE_TTL, JSON.stringify(result));
-    console.log('Cached auction:', cacheKey);
   } catch (err) {
     console.error('Redis auction cache set error:', err);
   }
@@ -1086,13 +1077,9 @@ export async function generateAIAuction(
   const systemMessage = 'You are an ad auction simulator. Generate realistic RTB bids based on user profiles. Always respond with valid JSON only, no markdown.';
 
   if (anthropic) {
-    // Try Claude with full token budget
-    console.log('AI Auction: Trying Claude...');
     let text = await callClaude(systemMessage, prompt, 2048);
 
-    // Retry with reduced tokens on failure
     if (!text) {
-      console.log('AI Auction: Claude primary failed, retrying with reduced tokens...');
       text = await callClaude(systemMessage, prompt, 1024);
     }
 

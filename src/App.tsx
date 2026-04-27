@@ -3,7 +3,17 @@
  * Main application component
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, Component } from 'react';
+import type { ReactNode } from 'react';
+
+class ErrorBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { error: Error | null }> {
+  state = { error: null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  render() {
+    if (this.state.error) return this.props.fallback;
+    return this.props.children;
+  }
+}
 import { Globe } from './components/Globe';
 import { InfoPanel } from './components/InfoPanel';
 import { AdAuction } from './components/AdAuction';
@@ -87,21 +97,25 @@ export default function App() {
 
       {/* Globe */}
       <div className="globe-container">
-        <Globe
-          visitors={visitors}
-          currentVisitorId={currentVisitor?.id || null}
-          onVisitorClick={handleVisitorClick}
-        />
+        <ErrorBoundary fallback={<div style={{ color: 'var(--text-muted)', padding: '2rem', fontFamily: 'var(--mono)', fontSize: '0.8rem', textAlign: 'center' }}>Globe unavailable</div>}>
+          <Globe
+            visitors={visitors}
+            currentVisitorId={currentVisitor?.id || null}
+            onVisitorClick={handleVisitorClick}
+          />
+        </ErrorBoundary>
       </div>
 
       {/* Right Panel - Info Panel */}
-      <InfoPanel
-        visitor={displayedVisitor}
-        isCurrentUser={isDisplayingCurrentUser ?? true}
-        onClose={selectedVisitorId ? handleCloseSelected : undefined}
-        aiLoading={aiLoading && isDisplayingCurrentUser}
-        revisitData={isDisplayingCurrentUser ? revisitData : null}
-      />
+      <ErrorBoundary fallback={<div style={{ color: 'var(--text-muted)', padding: '2rem', fontFamily: 'var(--mono)', fontSize: '0.8rem' }}>Panel unavailable</div>}>
+        <InfoPanel
+          visitor={displayedVisitor}
+          isCurrentUser={isDisplayingCurrentUser ?? true}
+          onClose={selectedVisitorId ? handleCloseSelected : undefined}
+          aiLoading={aiLoading && isDisplayingCurrentUser}
+          revisitData={isDisplayingCurrentUser ? revisitData : null}
+        />
+      </ErrorBoundary>
 
       {/* Footer */}
       <footer className="app-footer">
