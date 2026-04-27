@@ -318,7 +318,8 @@ html, body, #root {
     top: 96px;
     left: 0;
     right: 0;
-    bottom: 45%;
+    height: 350px;
+    bottom: auto;
   }
 
   .app-footer { display: none; }

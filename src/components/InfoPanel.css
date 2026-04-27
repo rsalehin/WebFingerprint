@@ -495,6 +495,31 @@
 
 .privacy-tips li:last-child { margin-bottom: 0; }
 
+/* ── Export Button ── */
+.export-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 14px;
+  background: transparent;
+  border: 1px solid var(--green);
+  color: var(--green);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-radius: 0;
+}
+
+.export-btn:hover {
+  background: rgba(0, 255, 136, 0.10);
+  color: var(--green);
+  border-color: var(--green);
+}
+
 /* ── Footer ── */
 .info-panel-footer {
   padding: 10px 16px;
@@ -547,34 +572,21 @@
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .info-panel {
+    position: fixed;
+    top: calc(96px + 350px);
+    bottom: 0;
+    left: 0;
+    right: 0;
     width: 100%;
     max-width: none;
-    top: auto;
-    bottom: 0;
-    height: 55%;
+    height: auto;
     border-left: none;
     border-top: 1px solid var(--green-border);
-    border-radius: 12px 12px 0 0;
+    border-radius: 0;
   }
 
-  .info-panel-header {
-    padding: 10px 14px 12px;
-    position: relative;
-  }
-
-  .info-panel-header::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 32px;
-    height: 3px;
-    background: var(--text-dim);
-    border-radius: 2px;
-  }
-
-  .info-panel-header h2 { font-size: 0.65rem; margin-top: 6px; }
+  .info-panel-header { padding: 10px 14px; }
+  .info-panel-header h2 { font-size: 0.65rem; }
   .info-panel-content { padding: 10px; }
   .info-section { margin-bottom: 6px; }
   .info-section-header { padding: 6px 10px; }
@@ -588,10 +600,24 @@
 
   .audit-log-content { max-height: 140px; }
   .audit-entry { font-size: 0.58rem; grid-template-columns: 80px 12px 1fr; }
+
+  /* Risk breakdown — single column on mobile */
+  .risk-check {
+    flex-wrap: wrap;
+    row-gap: 2px;
+  }
+  .risk-check-text {
+    flex: 1 1 100%;
+    order: 2;
+  }
+  .risk-check-indicator { order: 1; }
+  .risk-check-score { order: 3; margin-left: auto; }
+
+  .export-btn { font-size: 0.65rem; padding: 9px 12px; }
 }
 
 @media (max-width: 400px) {
-  .info-panel { height: 60%; }
+  .info-panel { top: calc(96px + 350px); }
   .info-panel-header h2 { font-size: 0.6rem; }
   .info-section-title { font-size: 0.55rem; }
   .info-label { font-size: 0.55rem; }

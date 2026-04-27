@@ -351,6 +351,71 @@ export function InfoPanel({ visitor, isCurrentUser, onClose, aiLoading, revisitD
 
   const { server, client } = visitor;
 
+  function handleExport() {
+    const b = client?.behavior;
+    const ab = client?.advancedBehavior;
+    const wpm = b ? Math.round(b.typingSpeed / 5) : 0;
+
+    const biometrics = client && b && ab ? {
+      mouseStyle: b.mouseAcceleration > 800 ? 'Erratic' : b.mouseAcceleration > 300 ? 'Smooth' : 'Precise',
+      scrollPattern: b.scrollDepthMax > 0.7 ? 'Deep Reader' : b.scrollDirectionChanges > 5 ? 'Scanner' : 'Skimmer',
+      typingRhythm: wpm > 80 ? `Fast (${wpm} WPM)` : wpm > 40 ? `Moderate (${wpm} WPM)` : wpm > 0 ? `Hunt-and-peck (${wpm} WPM)` : 'No typing detected',
+      engagement: b.sessionDuration > 120000 && b.scrollDepthMax > 0.4 ? 'Highly Engaged' : b.sessionDuration > 30000 ? 'Browsing' : 'Passive',
+      handedness: ab.likelyHandedness,
+      handednessConfidence: ab.handednessConfidence,
+      estimatedReadingSpeed: ab.estimatedReadingSpeed,
+    } : null;
+
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      server: {
+        ip: 'redacted',
+        geo: server.geo,
+        userAgent: server.userAgent,
+        acceptLanguage: server.acceptLanguage,
+      },
+      fingerprint: client ? {
+        id: client.fingerprintId,
+        crossBrowserId: client.crossBrowserId,
+        confidence: client.fingerprintConfidence,
+        entropyScore: client.entropyScore,
+        canvasHash: client.canvasFingerprint,
+        audioHash: client.audioFingerprint,
+        webglHash: client.webglFingerprint,
+        fontsDetected: client.fontsDetected.length,
+        fontsDetectedList: client.fontsDetected,
+        timezone: client.timezone,
+        language: client.language,
+        platform: client.platform,
+        screenResolution: `${client.screenWidth}x${client.screenHeight}`,
+        devicePixelRatio: client.devicePixelRatio,
+        hardwareConcurrency: client.hardwareConcurrency,
+        deviceMemory: client.deviceMemory,
+      } : null,
+      aiProfile: client?.userProfile ?? null,
+      behaviorSummary: b ? {
+        sessionDuration: b.sessionDuration,
+        mouseMovements: b.mouseMovements,
+        clickCount: b.clickCount,
+        scrollDepthMax: b.scrollDepthMax,
+        typingSpeed: b.typingSpeed,
+        tabSwitchCount: b.tabSwitchCount,
+      } : null,
+      biometricProfile: biometrics,
+      revisitData: revisitData ?? null,
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `webfingerprint-export-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="info-panel">
       <div className="info-panel-header">
@@ -1633,6 +1698,11 @@ export function InfoPanel({ visitor, isCurrentUser, onClose, aiLoading, revisitD
             </ul>
           </div>
         )}
+
+        {/* Export Button */}
+        <button className="export-btn" onClick={handleExport}>
+          Export My Data as JSON
+        </button>
       </div>
 
       <div className="info-panel-footer">
