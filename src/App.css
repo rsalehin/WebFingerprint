@@ -1,0 +1,332 @@
+/* ============================================================
+   YourInfo — Dark Surveillance Aesthetic
+   Layout: left panel (ad auction) | globe | right panel (info)
+   ============================================================ */
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+}
+
+.app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: var(--bg);
+}
+
+/* ── Header ── */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 340px;
+  right: 380px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--green-border);
+  z-index: 50;
+  box-shadow: 0 1px 24px rgba(0, 255, 136, 0.04);
+}
+
+/* Left Panel */
+.left-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 340px;
+  z-index: 60;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+}
+
+/* Logo */
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  font-family: var(--mono);
+  font-size: 1.25rem;
+  color: var(--green);
+  text-shadow: 0 0 12px var(--green);
+  animation: pulse-dot 3s ease-in-out infinite;
+}
+
+.app-logo h1 {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+/* Stats */
+.app-stats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-bright);
+  padding: 6px 14px;
+  min-width: 60px;
+}
+
+.stat-value {
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--green);
+  line-height: 1.2;
+  text-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
+}
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Connection status */
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  border: 1px solid var(--border-bright);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg-card);
+}
+
+.connection-status.connected {
+  border-color: var(--green-border);
+  color: var(--green);
+  background: var(--green-dim);
+}
+
+.connection-status.disconnected {
+  border-color: var(--red-border);
+  color: var(--red);
+  background: var(--red-dim);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.connected .status-dot {
+  background: var(--green);
+  color: var(--green);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+  box-shadow: 0 0 6px var(--green);
+}
+
+.disconnected .status-dot {
+  background: var(--red);
+  color: var(--red);
+}
+
+/* AI Credits Banner */
+.ai-credits-banner {
+  position: fixed;
+  top: 56px;
+  left: 340px;
+  right: 380px;
+  background: var(--red-dim);
+  border-bottom: 1px solid var(--red-border);
+  color: var(--text);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  z-index: 100;
+}
+
+.ai-credits-banner .banner-icon {
+  font-size: 1rem;
+  color: var(--red);
+}
+
+.ai-credits-banner .banner-text {
+  flex: 1;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.ai-credits-banner .banner-link {
+  background: var(--red-dim);
+  color: var(--red);
+  border: 1px solid var(--red-border);
+  padding: 6px 14px;
+  text-decoration: none;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.ai-credits-banner .banner-link:hover {
+  background: var(--red);
+  color: #000;
+}
+
+/* Globe Container */
+.globe-container {
+  position: fixed;
+  top: 56px;
+  left: 340px;
+  right: 380px;
+  bottom: 44px;
+  background: var(--bg);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.globe-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Footer */
+.app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 340px;
+  right: 380px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  z-index: 50;
+}
+
+.app-footer p {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.app-footer a {
+  color: var(--green);
+  margin-left: 8px;
+  font-weight: 700;
+  transition: color 0.2s;
+}
+
+.app-footer a:hover {
+  color: var(--text-bright);
+}
+
+/* ── Responsive — Tablet ── */
+@media (max-width: 1200px) {
+  .left-panel { width: 300px; }
+  .app-header { left: 300px; }
+  .ai-credits-banner { left: 300px; }
+  .globe-container { left: 300px; }
+  .app-footer { left: 300px; }
+}
+
+/* ── Responsive — Mobile ── */
+@media (max-width: 768px) {
+  .left-panel {
+    position: fixed;
+    top: 48px;
+    left: 0;
+    right: 0;
+    bottom: auto;
+    width: 100%;
+    height: auto;
+    z-index: 55;
+    overflow: visible;
+  }
+
+  .app-header {
+    left: 0;
+    right: 0;
+    height: 48px;
+    padding: 0 12px;
+  }
+
+  .app-logo h1 { font-size: 0.75rem; letter-spacing: 0.1em; }
+  .logo-icon   { font-size: 1rem; }
+  .app-stats   { gap: 8px; }
+  .stat        { padding: 4px 10px; }
+  .stat-value  { font-size: 0.875rem; }
+  .stat-label  { font-size: 0.55rem; }
+
+  .connection-status { padding: 5px 10px; font-size: 0.65rem; }
+  .connection-status span:not(.status-dot) { display: none; }
+
+  .ai-credits-banner {
+    left: 0;
+    right: 0;
+    top: 48px;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 12px;
+    font-size: 0.75rem;
+  }
+
+  .globe-container {
+    top: 96px;
+    left: 0;
+    right: 0;
+    bottom: 45%;
+  }
+
+  .app-footer { display: none; }
+}
+
+@media (max-width: 400px) {
+  .app-header { padding: 0 8px; }
+  .app-logo h1 { font-size: 0.65rem; }
+  .stat { padding: 3px 8px; }
+  .stat-value { font-size: 0.8rem; }
+}
