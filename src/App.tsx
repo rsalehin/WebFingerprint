@@ -1,5 +1,5 @@
 /**
- * YourInfo - Privacy Awareness Globe
+ * WebFingerprint - Privacy Awareness Globe
  * Main application component
  */
 
@@ -54,7 +54,7 @@ export default function App() {
       <header className="app-header">
         <div className="app-logo">
           <span className="logo-icon">◉</span>
-          <h1>YourInfo</h1>
+          <h1>WebFingerprint</h1>
         </div>
         <div className="app-stats">
           <div className="stat">
@@ -121,7 +121,7 @@ export default function App() {
       <footer className="app-footer">
         <p>
           This site demonstrates what information websites can collect about you.
-          <a href="https://github.com/siinghd/yourinfo" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/rsalehin/WebFingerprint" target="_blank" rel="noopener noreferrer">
             View on GitHub
           </a>
         </p>
