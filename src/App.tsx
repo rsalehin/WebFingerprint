@@ -12,7 +12,7 @@ import type { VisitorInfo } from './types';
 import './App.css';
 
 export default function App() {
-  const { connected, visitors, currentVisitor, aiLoading, aiCreditsExhausted, totalUniqueVisitors } = useWebSocket();
+  const { connected, visitors, currentVisitor, aiLoading, aiCreditsExhausted, totalUniqueVisitors, revisitData } = useWebSocket();
   const [selectedVisitorId, setSelectedVisitorId] = useState<string | null>(null);
 
   // Get the selected visitor from the visitors array (always up-to-date)
@@ -100,6 +100,7 @@ export default function App() {
         isCurrentUser={isDisplayingCurrentUser ?? true}
         onClose={selectedVisitorId ? handleCloseSelected : undefined}
         aiLoading={aiLoading && isDisplayingCurrentUser}
+        revisitData={isDisplayingCurrentUser ? revisitData : null}
       />
 
       {/* Footer */}

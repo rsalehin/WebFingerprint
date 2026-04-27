@@ -4,7 +4,7 @@
  */
 
 import { useMemo, useRef } from 'react';
-import type { VisitorInfo, ClientInfo, ServerInfo } from '../types';
+import type { VisitorInfo, ClientInfo, ServerInfo, RevisitPayload } from '../types';
 import './InfoPanel.css';
 
 interface InfoPanelProps {
@@ -12,6 +12,7 @@ interface InfoPanelProps {
   isCurrentUser: boolean;
   onClose?: () => void;
   aiLoading?: boolean;
+  revisitData?: RevisitPayload | null;
 }
 
 interface InfoRowProps {
@@ -262,7 +263,79 @@ function LiveAuditLog({ client, server, connectedAt }: { client: ClientInfo; ser
   );
 }
 
-export function InfoPanel({ visitor, isCurrentUser, onClose, aiLoading }: InfoPanelProps) {
+/* ── Behavioral Biometrics ── */
+function BiometricProfile({ client }: { client: ClientInfo }) {
+  const b = client.behavior;
+  const ab = client.advancedBehavior;
+
+  const wpm = Math.round(b.typingSpeed / 5);
+  const mouseStyle = b.mouseAcceleration > 800
+    ? { label: 'Erratic', color: 'var(--red)' }
+    : b.mouseAcceleration > 300
+      ? { label: 'Smooth', color: 'var(--green)' }
+      : { label: 'Precise', color: 'var(--blue)' };
+
+  const scrollPattern = b.scrollDepthMax > 0.7
+    ? { label: 'Deep Reader', color: 'var(--green)' }
+    : b.scrollDirectionChanges > 5
+      ? { label: 'Scanner', color: 'var(--amber)' }
+      : { label: 'Skimmer', color: 'var(--amber)' };
+
+  const typingRhythm = wpm > 80
+    ? { label: `Fast (${wpm} WPM)`, color: 'var(--green)' }
+    : wpm > 40
+      ? { label: `Moderate (${wpm} WPM)`, color: 'var(--amber)' }
+      : wpm > 0
+        ? { label: `Hunt-and-peck (${wpm} WPM)`, color: 'var(--red)' }
+        : { label: 'No typing detected', color: 'var(--text-muted)' };
+
+  const engagement = b.sessionDuration > 120000 && b.scrollDepthMax > 0.4
+    ? { label: 'Highly Engaged', color: 'var(--green)' }
+    : b.sessionDuration > 30000
+      ? { label: 'Browsing', color: 'var(--amber)' }
+      : { label: 'Passive', color: 'var(--red)' };
+
+  return (
+    <div className="info-section">
+      <div className="info-section-header">
+        <span className="info-section-icon">B</span>
+        <span className="info-section-title">Behavioral Biometrics</span>
+      </div>
+      <div className="info-section-content">
+        <div className="info-row">
+          <span className="info-label">Mouse Style</span>
+          <span className="info-value" style={{ color: mouseStyle.color }}>{mouseStyle.label}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Scroll Pattern</span>
+          <span className="info-value" style={{ color: scrollPattern.color }}>{scrollPattern.label}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Typing Rhythm</span>
+          <span className="info-value" style={{ color: typingRhythm.color }}>{typingRhythm.label}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Engagement</span>
+          <span className="info-value" style={{ color: engagement.color }}>{engagement.label}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Handedness</span>
+          <span className="info-value">{ab.likelyHandedness} ({ab.handednessConfidence}% conf.)</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Reading Speed</span>
+          <span className="info-value">{ab.estimatedReadingSpeed > 0 ? `${ab.estimatedReadingSpeed} WPM` : 'N/A'}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Content Engagement</span>
+          <span className="info-value">{ab.contentEngagement}/100</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function InfoPanel({ visitor, isCurrentUser, onClose, aiLoading, revisitData }: InfoPanelProps) {
   if (!visitor) {
     return (
       <div className="info-panel">
@@ -295,6 +368,17 @@ export function InfoPanel({ visitor, isCurrentUser, onClose, aiLoading }: InfoPa
         {!isCurrentUser && (
           <div className="privacy-notice">
             Some data is hidden to protect this visitor's privacy. Location on map and coordinates are approximate (~100km).
+          </div>
+        )}
+
+        {/* Returning Visitor Banner */}
+        {isCurrentUser && revisitData && (
+          <div className="revisit-banner">
+            <span className="revisit-icon">↩</span>
+            <span className="revisit-text">
+              Welcome back — visit #{revisitData.visitCount}.
+              First seen {new Date(revisitData.firstSeen).toLocaleDateString()}.
+            </span>
           </div>
         )}
 
@@ -924,6 +1008,12 @@ export function InfoPanel({ visitor, isCurrentUser, onClose, aiLoading }: InfoPa
         {/* Fingerprints Section */}
         {client && (
           <InfoSection title="Fingerprints" icon="@">
+            <InfoRow
+              label="Entropy Score"
+              value={`${client.entropyScore}/100`}
+              tooltip="How unique your configuration is — higher means you're easier to track"
+              warning={client.entropyScore >= 60}
+            />
             <InfoRow label="Canvas Hash" value={client.canvasFingerprint} tooltip="Unique identifier from canvas rendering" />
             <InfoRow label="Audio Hash" value={client.audioFingerprint} tooltip="Unique identifier from audio processing" />
             <InfoRow label="WebGL Hash" value={client.webglFingerprint} tooltip="Unique identifier from WebGL parameters" />
@@ -1316,6 +1406,9 @@ export function InfoPanel({ visitor, isCurrentUser, onClose, aiLoading }: InfoPa
             )}
           </InfoSection>
         )}
+
+        {/* Behavioral Biometrics Summary */}
+        {client && <BiometricProfile client={client} />}
 
         {/* Real-time Behavior Tracking */}
         {client && (

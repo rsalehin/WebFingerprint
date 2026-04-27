@@ -1115,3 +1115,44 @@ export async function generateAIAuction(
     source: 'fallback',
   };
 }
+
+interface VisitRecord {
+  visitCount: number;
+  firstSeen: number;
+  lastSeen: number;
+}
+
+/**
+ * Check if a fingerprint has been seen before and record the visit.
+ * Returns visit info if this is a returning visitor, null if first visit or Redis unavailable.
+ */
+export async function checkAndRecordVisit(
+  fingerprintId: string
+): Promise<{ visitCount: number; firstSeen: number } | null> {
+  const client = await getRedis();
+  if (!client) return null;
+
+  const key = `visit:${fingerprintId}`;
+  const TTL = 60 * 60 * 24 * 90; // 90 days
+
+  try {
+    const raw = await client.get(key);
+    const now = Date.now();
+
+    if (raw) {
+      const record: VisitRecord = JSON.parse(raw);
+      record.visitCount += 1;
+      record.lastSeen = now;
+      await client.setEx(key, TTL, JSON.stringify(record));
+      return { visitCount: record.visitCount, firstSeen: record.firstSeen };
+    }
+
+    // First visit — record but don't flag as revisit
+    const record: VisitRecord = { visitCount: 1, firstSeen: now, lastSeen: now };
+    await client.setEx(key, TTL, JSON.stringify(record));
+    return null;
+  } catch (err) {
+    console.error('checkAndRecordVisit error:', (err as Error).message);
+    return null;
+  }
+}

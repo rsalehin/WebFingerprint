@@ -206,6 +206,29 @@
 .info-row.warning .info-label { color: var(--text-muted); }
 .info-row.warning .info-value { color: var(--red); }
 
+/* ── Returning Visitor Banner ── */
+.revisit-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  background: var(--green-dim);
+  border: 1px solid var(--green-border);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--green);
+}
+
+.revisit-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.revisit-text {
+  color: var(--text-muted);
+}
+
 /* ── Privacy Risk Score ── */
 .privacy-risk-score {
   background: var(--bg-card);
