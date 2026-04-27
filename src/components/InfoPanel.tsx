@@ -1520,7 +1520,7 @@ export function InfoPanel({ visitor, isCurrentUser, onClose, aiLoading, revisitD
             <InfoRow label="Tab Switches" value={client.behavior.tabSwitchCount} tooltip="Times you switched away from this tab" warning={client.behavior.tabSwitchCount > 0} />
             <InfoRow label="Focus Time" value={formatDuration(client.behavior.totalFocusTime)} tooltip="Time spent with tab focused" />
             <InfoRow label="Away Time" value={formatDuration(client.behavior.totalBlurTime)} tooltip="Time spent on other tabs" />
-            <InfoRow label="Session Duration" value={formatDuration(client.behavior.sessionDuration)} />
+            <InfoRow label="Session Duration" value={formatDuration(Date.now() - visitor.connectedAt)} />
             <InfoRow label="First Interaction" value={client.behavior.firstInteractionTime ? `${Math.round(client.behavior.firstInteractionTime)}ms` : 'N/A'} tooltip="Time until first mouse/key/touch" />
           </InfoSection>
         )}

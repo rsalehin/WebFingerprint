@@ -239,6 +239,13 @@ function extractProfileSummary(visitor: VisitorInfo): string {
   return parts.join('\n');
 }
 
+function getApiBaseUrl(): string {
+  if (import.meta.env.PROD) {
+    return '';
+  }
+  return `http://localhost:${import.meta.env.VITE_WS_PORT || 3020}`;
+}
+
 /**
  * Generate AI-powered auction using the API
  */
@@ -252,7 +259,7 @@ export async function runAIAuction(visitor: VisitorInfo): Promise<AuctionResult>
 
   try {
     // Call the AI endpoint with profile summary
-    const response = await fetch('/api/ai-auction', {
+    const response = await fetch(`${getApiBaseUrl()}/api/ai-auction`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
