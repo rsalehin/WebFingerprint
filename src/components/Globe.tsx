@@ -300,12 +300,13 @@ export function Globe({ visitors, currentVisitorId, onVisitorClick }: GlobeCompo
       }
     });
 
-    // Draw arcs between current user and others
+    // Draw arcs between current user and others, or pulsing ring when solo
     if (currentVisitorId) {
       const currentPoint = points.find(p => p.id === currentVisitorId);
       if (currentPoint) {
-        points.forEach(point => {
-          if (point.id !== currentVisitorId) {
+        const others = points.filter(p => p.id !== currentVisitorId);
+        if (others.length > 0) {
+          others.forEach(point => {
             const arcEntity = viewer.entities.add({
               polyline: {
                 positions: Cesium.Cartesian3.fromDegreesArray([
@@ -321,8 +322,31 @@ export function Globe({ visitors, currentVisitorId, onVisitorClick }: GlobeCompo
               },
             });
             arcEntitiesRef.current.push(arcEntity);
-          }
-        });
+          });
+        } else {
+          // Solo visitor: animated expanding ring so the globe looks active
+          const soloRing = viewer.entities.add({
+            position: Cesium.Cartesian3.fromDegrees(currentPoint.lng, currentPoint.lat),
+            ellipse: {
+              semiMinorAxis: new Cesium.CallbackProperty(() => {
+                return 80000 + Math.abs(Math.sin(Date.now() / 1200)) * 220000;
+              }, false),
+              semiMajorAxis: new Cesium.CallbackProperty(() => {
+                return 80000 + Math.abs(Math.sin(Date.now() / 1200)) * 220000;
+              }, false),
+              material: new Cesium.ColorMaterialProperty(
+                new Cesium.CallbackProperty(() => {
+                  return YELLOW.withAlpha(0.18 - Math.abs(Math.sin(Date.now() / 1200)) * 0.15);
+                }, false)
+              ),
+              outline: true,
+              outlineColor: YELLOW,
+              outlineWidth: 1,
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            },
+          });
+          arcEntitiesRef.current.push(soloRing);
+        }
       }
     }
   }, [visitors, currentVisitorId]);

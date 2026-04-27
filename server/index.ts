@@ -248,10 +248,48 @@ function getRealIP(req: Request, server: { requestIP?: (req: Request) => { addre
 }
 
 /**
+ * Check if an IP address is private/loopback (inline, no import needed)
+ */
+function isPrivateIPAddress(ip: string): boolean {
+  return (
+    ip === '::1' ||
+    ip === '::ffff:127.0.0.1' ||
+    ip === '127.0.0.1' ||
+    ip === 'localhost' ||
+    ip === 'unknown' ||
+    ip.startsWith('10.') ||
+    ip.startsWith('192.168.') ||
+    ip.startsWith('169.254.') ||
+    ip.startsWith('172.16.') || ip.startsWith('172.17.') || ip.startsWith('172.18.') ||
+    ip.startsWith('172.19.') || ip.startsWith('172.20.') || ip.startsWith('172.21.') ||
+    ip.startsWith('172.22.') || ip.startsWith('172.23.') || ip.startsWith('172.24.') ||
+    ip.startsWith('172.25.') || ip.startsWith('172.26.') || ip.startsWith('172.27.') ||
+    ip.startsWith('172.28.') || ip.startsWith('172.29.') || ip.startsWith('172.30.') ||
+    ip.startsWith('172.31.')
+  );
+}
+
+/**
  * Build server info from request
  */
 async function buildServerInfo(req: Request, ip: string): Promise<ServerInfo> {
-  const geo = await getGeolocation(ip);
+  let geo = await getGeolocation(ip);
+
+  // Dev fallback: private/loopback IP can't be geolocated — fetch real public IP
+  if (!geo && isPrivateIPAddress(ip)) {
+    try {
+      const res = await fetch('https://api.ipify.org?format=json');
+      if (res.ok) {
+        const { ip: publicIp } = await res.json() as { ip: string };
+        geo = await getGeolocation(publicIp);
+        if (geo) {
+          console.log(`Dev geo fallback: ${ip} → ${publicIp} (${geo.city}, ${geo.country})`);
+        }
+      }
+    } catch {
+      // ipify unreachable — geo stays null, no globe pin in dev
+    }
+  }
 
   // Extract relevant headers (sanitized)
   const headers: Record<string, string> = {};
